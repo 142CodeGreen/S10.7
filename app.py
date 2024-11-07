@@ -121,8 +121,6 @@ def process_result(result):
 
 # create Gradio UI and launch UI
 
-import gradio as gr
-
 def start_gradio():
     with gr.Blocks() as demo:
         gr.Markdown("# RAG Chatbot for PDF Files")
