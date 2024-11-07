@@ -83,7 +83,7 @@ async def stream_response(query, history):
 
     # Yield history if it exists
     if history:
-        yield from history
+        yield history
 
     # Initialize guardrails for each query
     config = RailsConfig.from_path("./Config")
