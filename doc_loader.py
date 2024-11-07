@@ -31,7 +31,7 @@ def load_documents(*f_paths):
         os.makedirs(kb_dir, exist_ok=True)
     except OSError as e:
         logger.error(f"Error creating directory {kb_dir}: {e}")
-        return []
+        return "Failed to create knowledge base directory."
 
     documents = []
 
@@ -53,8 +53,8 @@ def load_documents(*f_paths):
                 logger.error(f"Error converting document from {file_path}: {str(e)}")
 
     if not documents:
-        logger.info("No documents were loaded or converted.")
+        logger.info("No documents were converted.")
+        return "No documents were processed for conversion."
     else:
         logger.info(f"Documents successfully converted to Markdown and saved.")
-    
-    return documents
+        return "Documents successfully converted to Markdown and saved."
