@@ -5,11 +5,13 @@ define flow self check input
     bot refuse to respond
     stop
 
-define flow self check hallucination
-  user ...
+define flow user_query
+  user ...  # Match any user input
+  print("user_query flow triggered!")  # Add logging
   $answer = execute rag()
   $check_hallucination = True
   bot $answer
+
 
 define flow self check output
   $allowed = execute self_check_output
@@ -22,6 +24,12 @@ define bot refuse to respond
   "I'm sorry, I can't respond to that."
 
 #define flow self check hallucinations
+#  user ...
+#  $answer = execute rag()
+#  $check_hallucination = True
+#  bot $answer
+
+#define flow self check hallucination
 #  user ...
 #  $answer = execute rag()
 #  $check_hallucination = True
