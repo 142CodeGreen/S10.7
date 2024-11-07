@@ -63,7 +63,13 @@ def doc_index():
             response = query_engine.query("What is this document about?")
             logger.info("Sample query response: " + str(response))
 
-            return "Documents indexed successfully."
+            # Initialize Guardrails after setting up the query engine
+            config = RailsConfig.from_path("./Config")
+            rails = LLMRails(config)
+            from Config.actions import init
+            init(rails)
+            
+            return "Documents indexed successfully, and Guardrails initialized."
         except Exception as e:
             logger.error(f"Error during indexing: {e}")
             return "Failed to index documents."
