@@ -5,7 +5,7 @@
 
 1. Clone the repository:
 ```
-git clone https://github.com/142CodeGreen/S1.3.git
+git clone https://github.com/142CodeGreen/S10.7.git
 cd S10.7
 ```
 
