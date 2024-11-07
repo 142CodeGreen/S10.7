@@ -1,3 +1,14 @@
+---
+title: S10.7
+emoji: 🔥
+colorFrom: gray
+colorTo: yellow
+sdk: gradio
+sdk_version: 5.5.0
+app_file: app.py
+pinned: false
+---
+
 # S10.7
 
 
