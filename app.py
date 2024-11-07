@@ -1,7 +1,7 @@
 # app.py
 
 import gradio as gr
-from llama_index.core import VectorStoreIndex, StorageContext, Settings, Node
+from llama_index.core import VectorStoreIndex, StorageContext, Settings
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.llms.nvidia import NVIDIA
@@ -10,7 +10,7 @@ from nemoguardrails import LLMRails, RailsConfig
 import logging
 import asyncio
 import os
-from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.node_parser import SentenceSplitter,Node
 
 
 # Configure logging
