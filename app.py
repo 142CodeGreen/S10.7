@@ -41,31 +41,35 @@ def doc_index():
     # Load documents using SimpleDirectoryReader
     documents = SimpleDirectoryReader(kb_dir, required_exts=['.md']).load_data()
     if documents:
-        # Create Milvus Vector Store with processed documents
-        vector_store = MilvusVectorStore(
-            uri="milvus_demo.db",
-            dim=1024,
-            overwrite=True
-        )
+    if documents:
+        try:
+            vector_store = MilvusVectorStore(
+                uri="milvus_demo.db",
+                dim=1024,
+                overwrite=True
+            )
 
-        storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        index = VectorStoreIndex.from_documents(
-            documents,
-            storage_context=storage_context
-        )
-        # Persist the index
-        index.storage_context.persist(persist_dir=kb_dir)
-        query_engine = index.as_query_engine(similarity_top_k=20, streaming=True)
-        global_query_engine = query_engine  # Set the global variable
+            storage_context = StorageContext.from_defaults(vector_store=vector_store)
+            index = VectorStoreIndex.from_documents(
+                documents,
+                storage_context=storage_context
+            )
+            # Persist the index
+            index.storage_context.persist(persist_dir=kb_dir)
+            query_engine = index.as_query_engine(similarity_top_k=20, streaming=True)
+            global_query_engine = query_engine  # Set the global variable
 
-        # Sample query to confirm the query engine works
-        response = query_engine.query("What is this document about?")
-        print(response)
+            # Sample query to confirm the query engine works
+            response = query_engine.query("What is this document about?")
+            logger.info("Sample query response: " + str(response))
 
-        return "Documents indexed successfully."
+            return "Documents indexed successfully."
+        except Exception as e:
+            logger.error(f"Error during indexing: {e}")
+            return "Failed to index documents."
     else:
         return "No documents were processed for indexing."
-
+    
 # create stream_response
 
 async def stream_response(query, history):
@@ -137,8 +141,8 @@ def start_gradio():
         load_btn.click(
             lambda x: (load_documents(*x), doc_index()),
             inputs=[file_input],
-            outputs=[load_output, gr.State()]
-        )
+            outputs=[load_output]
+        )  #gr.State()]
 
         # Function to reset documents
         def reset_documents():
