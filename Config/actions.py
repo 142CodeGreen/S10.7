@@ -1,6 +1,6 @@
 #actions.py
 
-from app import global_query_engine
+from indexer import global_query_engine
 
 from nemoguardrails import LLMRails, RailsConfig
 from nemoguardrails.actions.actions import ActionResult
