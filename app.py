@@ -7,6 +7,7 @@ from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.llms.nvidia import NVIDIA
 from doc_loader import load_documents
+from Config.actions import init
 from nemoguardrails import LLMRails, RailsConfig
 import logging
 import asyncio
@@ -84,6 +85,7 @@ async def stream_response(query, history):
     # Initialize guardrails for each query
     config = RailsConfig.from_path("./Config")
     rails = LLMRails(config)
+    init(rails)
 
     try:
         user_message = {"role": "user", "content": query}
