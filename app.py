@@ -26,6 +26,7 @@ Settings.text_splitter = SentenceSplitter(chunk_size=400, chunk_overlap=20)
 
 kb_dir = "./Config/kb"
 global_query_engine = None
+rails = None
 
 def doc_index():
     global global_query_engine
@@ -66,10 +67,10 @@ def doc_index():
             # Initialize Guardrails after setting up the query engine
             config = RailsConfig.from_path("./Config")
             rails = LLMRails(config)
-            from Config.actions import init
             init(rails)
-            
-            return "Documents indexed successfully, and Guardrails initialized."
+
+            logger.info("Documents indexed successfully, and Guardrails initialized.")
+            return "Documents indexed successfully."
         except Exception as e:
             logger.error(f"Error during indexing: {e}")
             return "Failed to index documents."
@@ -80,18 +81,16 @@ def doc_index():
 
 async def stream_response(query, history):
     if not global_query_engine:
-        # Instead of returning, we yield the message since this is an async generator
         yield ("System", "Please load documents first.")
         return  # Stop iteration here
+
+    if not rails:
+        yield ("System", "Guardrails have not been initialized. Please index documents first.")
+        return
 
     # Yield history if it exists
     if history:
         yield history
-
-    # Initialize guardrails for each query
-    config = RailsConfig.from_path("./Config")
-    rails = LLMRails(config)
-    init(rails)
 
     try:
         user_message = {"role": "user", "content": query}
@@ -99,33 +98,26 @@ async def stream_response(query, history):
         result = await rails.generate_async(messages=[user_message])
         
         # Process the result
-        if isinstance(result, dict):
-            if "content" in result:
-                history.append((query, result["content"]))
-                yield history  # Yielding the updated history
-            else:
-                history.append((query, str(result)))
-                yield history  # Yielding the updated history
-        elif isinstance(result, str):
-            history.append((query, result))
-            yield history  # Yielding the updated history
-        elif hasattr(result, '__iter__'):
-            for chunk in result:
-                if isinstance(chunk, dict) and "content" in chunk:
-                    history.append((query, chunk["content"]))
-                    yield history  # Yielding the updated history
-                else:
-                    history.append((query, chunk))
-                    yield history  # Yielding the updated history
-        else:
-            logger.error(f"Unexpected result type: {type(result)}")
-            history.append((query, "Unexpected response format."))
-            yield history  # Yielding the updated history
+        response = process_result(result)
+        history.append((query, response))
+        yield history
 
     except Exception as e:
         logger.error(f"An error occurred while generating response: {e}")
         history.append((query, "An error occurred while processing your request."))
-        yield history  # Yielding the error message
+        yield history
+
+def process_result(result):
+    if isinstance(result, dict):
+        return result.get('content', str(result))
+    elif isinstance(result, str):
+        return result
+    elif hasattr(result, '__iter__'):
+        return next((chunk['content'] for chunk in result if isinstance(chunk, dict) and 'content' in chunk), "")
+    else:
+        logger.error(f"Unexpected result type: {type(result)}")
+        return "Unexpected response format."
+
 
 # create Gradio UI and launch UI
 
