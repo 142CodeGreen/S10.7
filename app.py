@@ -129,12 +129,8 @@ def start_gradio():
         clear_chat_btn = gr.Button("Clear Chat History")
         clear_all_btn = gr.Button("Clear All")
 
-        # Function to load documents and create index
-        load_btn.click(
-            lambda x: (load_documents(*x), doc_index()),
-            inputs=[file_input],
-            outputs=[load_output]
-        )  #gr.State()]
+        # Connect the button click to the load_and_initialize function
+        load_btn.click(load_and_initialize, inputs=[file_input], outputs=[load_output])
 
         # Function to reset documents
         def reset_documents():
