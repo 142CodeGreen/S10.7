@@ -77,8 +77,14 @@ def doc_index():
 
 async def stream_response(query, history):
     if not global_query_engine:
-        return [("System", "Please load documents first."), *history]
-    
+        # Instead of returning, we yield the message since this is an async generator
+        yield ("System", "Please load documents first.")
+        return  # Stop iteration here
+
+    # Yield history if it exists
+    if history:
+        yield from history
+
     # Initialize guardrails for each query
     config = RailsConfig.from_path("./Config")
     rails = LLMRails(config)
@@ -88,32 +94,34 @@ async def stream_response(query, history):
         # Generate response using guardrails and the RAG system
         result = await rails.generate_async(messages=[user_message])
         
+        # Process the result
         if isinstance(result, dict):
             if "content" in result:
                 history.append((query, result["content"]))
+                yield history  # Yielding the updated history
             else:
                 history.append((query, str(result)))
+                yield history  # Yielding the updated history
+        elif isinstance(result, str):
+            history.append((query, result))
+            yield history  # Yielding the updated history
+        elif hasattr(result, '__iter__'):
+            for chunk in result:
+                if isinstance(chunk, dict) and "content" in chunk:
+                    history.append((query, chunk["content"]))
+                    yield history  # Yielding the updated history
+                else:
+                    history.append((query, chunk))
+                    yield history  # Yielding the updated history
         else:
-            if isinstance(result, str):
-                history.append((query, result))
-            elif hasattr(result, '__iter__'):
-                for chunk in result:
-                    if isinstance(chunk, dict) and "content" in chunk:
-                        history.append((query, chunk["content"]))
-                        yield history
-                    else:
-                        history.append((query, chunk))
-                        yield history
-            else:
-                logger.error(f"Unexpected result type: {type(result)}")
-                history.append((query, "Unexpected response format."))
-        
-        return history
+            logger.error(f"Unexpected result type: {type(result)}")
+            history.append((query, "Unexpected response format."))
+            yield history  # Yielding the updated history
 
     except Exception as e:
-        logger.error(f"Error in stream_response: {str(e)}")
-        history.append(("An error occurred while processing your query.", None))
-        return history
+        logger.error(f"An error occurred while generating response: {e}")
+        history.append((query, "An error occurred while processing your request."))
+        yield history  # Yielding the error message
 
 # create Gradio UI and launch UI
 
