@@ -2,6 +2,8 @@
 
 import gradio as gr
 from llama_index.core import VectorStoreIndex, StorageContext, Settings
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.readers import SimpleDirectoryReader
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.llms.nvidia import NVIDIA
@@ -10,7 +12,6 @@ from nemoguardrails import LLMRails, RailsConfig
 import logging
 import asyncio
 import os
-from llama_index.core.node_parser import SentenceSplitter
 
 
 # Configure logging
@@ -38,16 +39,9 @@ def doc_index():
         logger.warning("Attempting to index documents while there's already an index. This should not happen unless it's an intentional reload.")
         return "An index already exists. Reload documents if you want to update the index."
 
-    processed_documents = []
-    for md_path in markdown_files:
-        with open(md_path, 'r') as file:
-            content = file.read()
-            # Use SentenceSplitter to split the document into nodes
-            parser = SentenceSplitter()
-            nodes = parser.get_nodes_from_documents([content])  # content is wrapped in a list as expected by get_nodes_from_documents
-            processed_documents.extend(nodes)  # Extend the list with nodes instead of creating new Node objects
-            
-    if processed_documents:
+    # Load documents using SimpleDirectoryReader
+    documents = SimpleDirectoryReader(kb_dir, required_exts=['.md']).load_data()
+    if documents:
         # Create Milvus Vector Store with processed documents
         vector_store = MilvusVectorStore(
             uri="milvus_demo.db",
@@ -57,7 +51,7 @@ def doc_index():
 
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         index = VectorStoreIndex.from_documents(
-            processed_documents,
+            documents,
             storage_context=storage_context
         )
         # Persist the index
@@ -72,7 +66,6 @@ def doc_index():
         return "Documents indexed successfully."
     else:
         return "No documents were processed for indexing."
-
 
 # create stream_response
 
