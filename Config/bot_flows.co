@@ -6,11 +6,16 @@ define flow self check input
     stop
 
 define flow user_query
-  user ...  # Match any user input
-  print("user_query flow triggered!")  # Add logging
+  user ...
+  print("user_query flow triggered!")
   $answer = execute rag()
-  $check_hallucination = True
-  bot $answer
+  $context = $answer.context  # Assuming rag() returns a dictionary
+  $statement = $answer.statement
+  $check_result = execute self_check_hallucination(paragraph=$context, statement=$statement)
+  if $check_result.agreement == "yes":
+    bot $answer
+  else:
+    bot "I'm not sure about that. Let me check."
 
 
 define flow self check output
