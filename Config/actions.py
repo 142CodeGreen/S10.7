@@ -32,6 +32,7 @@ def template(question, context, history):
     USER QUESTION: ```{question}```
     Answer in markdown:"""
 
+@action(is_system_action=True)
 async def rag(context: dict):
     """
     Implements RAG functionality by querying the global_query_engine with the user's question,
