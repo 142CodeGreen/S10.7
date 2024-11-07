@@ -83,4 +83,4 @@ async def rag(context: dict):
         )
 
 def init(app: LLMRails):
-    app.register_action(rag, name="self_check_hallucination")
+    app.register_action(rag, name="rag")
