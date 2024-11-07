@@ -10,7 +10,7 @@ from nemoguardrails import LLMRails, RailsConfig
 import logging
 import asyncio
 import os
-from llama_index.core.node_parser import SentenceSplitter, Node
+from llama_index.core.node_parser import SentenceSplitter
 
 
 # Configure logging
@@ -42,10 +42,11 @@ def doc_index():
     for md_path in markdown_files:
         with open(md_path, 'r') as file:
             content = file.read()
-            nodes = Settings.text_splitter.split_text(content)
-            for node in nodes:
-                processed_documents.append(Node(text=node, metadata={"source": md_path}))
-    
+            # Use SentenceSplitter to split the document into nodes
+            parser = SentenceSplitter()
+            nodes = parser.get_nodes_from_documents([content])  # content is wrapped in a list as expected by get_nodes_from_documents
+            processed_documents.extend(nodes)  # Extend the list with nodes instead of creating new Node objects
+            
     if processed_documents:
         # Create Milvus Vector Store with processed documents
         vector_store = MilvusVectorStore(
