@@ -2,7 +2,7 @@
 
 import gradio as gr
 from llama_index.core import VectorStoreIndex, StorageContext, Settings, Node
-from llama-index-vector-stores-Milvus import MilvusVectorStore
+from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.llms.nvidia import NVIDIA
 from doc_loader import load_documents
