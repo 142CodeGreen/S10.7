@@ -4,6 +4,7 @@ from app import global_query_engine
 
 from nemoguardrails import LLMRails, RailsConfig
 from nemoguardrails.actions.actions import ActionResult
+from nemoguardrails.actions.actions import action
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.llms.nvidia import NVIDIA
 from llama_index.core import Settings
