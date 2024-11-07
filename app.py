@@ -41,7 +41,6 @@ def doc_index():
     # Load documents using SimpleDirectoryReader
     documents = SimpleDirectoryReader(kb_dir, required_exts=['.md']).load_data()
     if documents:
-    if documents:
         try:
             vector_store = MilvusVectorStore(
                 uri="milvus_demo.db",
