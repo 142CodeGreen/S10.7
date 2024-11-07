@@ -45,6 +45,8 @@ async def rag(context: dict):
     Returns:
     ActionResult: An action result containing the generated answer and updated context.
     """
+    print("rag() function called!")
+    print(f"Received context: {context}")
     context_updates = {}
     question = context.get('last_user_message', '')
     history = context.get('history', [])
@@ -79,6 +81,7 @@ async def rag(context: dict):
             context_updates=context_updates
         )
     except Exception as e:
+        print(f"Error in rag(): {e}")
         return ActionResult(
             return_value="An error occurred while processing your query.",
             context_updates={}
