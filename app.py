@@ -85,8 +85,8 @@ async def stream_response(query, history):
     config = RailsConfig.from_path("./Config")
     rails = LLMRails(config)
 
-    user_message = {"role": "user", "content": query}
     try:
+        user_message = {"role": "user", "content": query}
         # Generate response using guardrails and the RAG system
         result = await rails.generate_async(messages=[user_message])
         
