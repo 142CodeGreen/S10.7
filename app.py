@@ -7,7 +7,7 @@ from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.llms.nvidia import NVIDIA
 from doc_loader import load_documents
-from indexer import doc_index, global_query_engine
+from doc_index import doc_index, global_query_engine
 from Config.actions import init
 from nemoguardrails import LLMRails, RailsConfig
 import logging
