@@ -42,10 +42,10 @@ rails:
       - self check hallucination
       - self check output
 
-actions:
-  - type: custom
-    name: self_check_hallucination
-    return_type: ActionResult
+#actions:
+#  - type: custom
+#    name: self_check_hallucination
+#    return_type: ActionResult
 
   # Whether to try to use a single LLM call for generating the user intent, next step and bot message.
   dialog:
