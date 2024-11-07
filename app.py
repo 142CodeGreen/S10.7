@@ -1,9 +1,8 @@
 # app.py
 
 import gradio as gr
-from llama_index.core import VectorStoreIndex, StorageContext, Settings
+from llama_index.core import SimpleDirectoryReader,VectorStoreIndex, StorageContext, Settings
 from llama_index.core.node_parser import SentenceSplitter
-from llama_index.readers import SimpleDirectoryReader
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.llms.nvidia import NVIDIA
