@@ -29,6 +29,41 @@ kb_dir = "./Config/kb"
 global_query_engine = None
 rails = None
 
+def initialize_guardrails():
+    global rails
+    if global_query_engine:
+        try:
+            config = RailsConfig.from_path("./Config")
+            rails = LLMRails(config)
+            init(rails)  # This calls the init function from actions.py
+            logger.info("Guardrails initialized successfully.")
+        except Exception as e:
+            logger.error(f"Failed to initialize guardrails: {e}")
+            return "Failed to initialize guardrails."
+    else:
+        logger.warning("Attempt to initialize guardrails without query engine.")
+        return "Query engine not available. Please index documents first."
+
+def load_and_initialize(*file_paths):
+    # Step 1: Upload documents
+    load_result = load_documents(*file_paths)
+    
+    # If the documents are loaded successfully, proceed with indexing
+    if load_result == "Documents successfully converted to Markdown and saved.":
+        # Step 2: Indexing
+        index_result = doc_index()
+        
+        # If indexing was successful, initialize guardrails
+        if index_result == "Documents indexed successfully.":
+            # Step 3: Initialize guardrails
+            guardrail_result = initialize_guardrails()
+            return guardrail_result
+        else:
+            return index_result
+    else:
+        return load_result
+
+
 # create stream_response
 
 async def stream_response(query, history):
@@ -59,16 +94,24 @@ async def stream_response(query, history):
         history.append((query, "An error occurred while processing your request."))
         yield history
 
-def process_result(result):
-    if isinstance(result, dict):
-        return result.get('content', str(result))
-    elif isinstance(result, str):
-        return result
-    elif hasattr(result, '__iter__'):
-        return next((chunk['content'] for chunk in result if isinstance(chunk, dict) and 'content' in chunk), "")
+def load_and_initialize(*file_paths):
+    # Step 1: Upload documents
+    load_result = load_documents(*file_paths)
+    
+    # If the documents are loaded successfully, proceed with indexing
+    if load_result == "Documents successfully converted to Markdown and saved.":
+        # Step 2: Indexing
+        index_result = doc_index()
+        
+        # If indexing was successful, initialize guardrails
+        if index_result == "Documents indexed successfully.":
+            # Step 3: Initialize guardrails
+            guardrail_result = initialize_guardrails()
+            return guardrail_result
+        else:
+            return index_result
     else:
-        logger.error(f"Unexpected result type: {type(result)}")
-        return "Unexpected response format."
+        return load_result
 
 
 # create Gradio UI and launch UI
