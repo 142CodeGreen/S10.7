@@ -10,7 +10,7 @@ from nemoguardrails import LLMRails, RailsConfig
 import logging
 import asyncio
 import os
-from llama_index.core.node_parser import SentenceSplitter,Node
+from llama_index.core.node_parser import SentenceSplitter, Node
 
 
 # Configure logging
