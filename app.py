@@ -94,12 +94,9 @@ def start_gradio():
             lambda x: [
                 load_documents(*x),
                 (
-                    try:
-                        doc_index()
-                        "Indexing completed."
-                    except Exception as e:
-                        logger.error(f"Indexing failed: {str(e)}")
-                        "Indexing failed."
+            "Indexing completed." 
+            if doc_index() is None  # Assuming doc_index() returns None on success
+            else "Indexing failed." 
                 )
             ],
             inputs=[file_input],
