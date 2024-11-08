@@ -91,10 +91,24 @@ def start_gradio():
 
         # Function to load documents and create index
         load_btn.click(
-            lambda x: [load_documents(*x), doc_index()],
+            lambda x: [
+                load_documents(*x),
+                try:
+                    doc_index()
+                    "Indexing completed."
+                except Exception as e:
+                    logger.error(f"Indexing failed: {str(e)}")
+                    "Indexing failed."
+            ],
             inputs=[file_input],
             outputs=[load_output, gr.State()]
         )
+        
+        #load_btn.click(
+        #    lambda x: [load_documents(*x), doc_index()],
+        #    inputs=[file_input],
+        #    outputs=[load_output, gr.State()]
+        #)
 
         # Function to reset documents
         def reset_documents():
