@@ -11,13 +11,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 kb_dir = "./Config/kb"
-global_query_engine = None
+#global_query_engine = None
 
 # Set up the text splitter
 Settings.text_splitter = SentenceSplitter(chunk_size=400)
 
-def doc_index():
-    global global_query_engine
+def doc_index(file_paths):
+    index,global global_query_engine
 
     try:
         logger.debug("Starting document indexing process.")
@@ -51,7 +51,8 @@ def doc_index():
         index.storage_context.persist(persist_dir=kb_dir)
 
         logger.debug("Creating query engine...")
-        query_engine = index.as_query_engine(similarity_top_k=20, streaming=True)
+        query_engine = reloaded_index.as_query_engine(similarity_top_k=20, streaming=True)
+        #query_engine = index.as_query_engine(similarity_top_k=20, streaming=True)
         global_query_engine = query_engine  # Update the global variable
 
         logger.info("Documents indexed successfully.")
