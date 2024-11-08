@@ -28,7 +28,7 @@ kb_dir = "./Config/kb"
 # Function to check and log the status of global_query_engine after indexing
 def check_query_engine_initialized():
     if global_query_engine:
-        logger.info("Query engine initialized successfully.")
+        logger.info("Query engine initialized successfully")
     else:
         logger.warning("Query engine not initialized after indexing.")
 
