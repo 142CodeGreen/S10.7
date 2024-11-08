@@ -106,7 +106,7 @@ def start_gradio():
         load_btn.click(
             lambda x: [load_documents(*x), doc_index()],
             inputs=[file_input],
-            outputs=[load_output, gr.State()]
+            outputs=[load_output]
         )
 
         # Function to reset documents
