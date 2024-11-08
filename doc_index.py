@@ -34,8 +34,8 @@ def doc_index():
 
         vector_store = MilvusVectorStore(
             uri="milvus_demo.db",
-            dim=1024,
-            overwrite=False  # Don't overwrite existing data
+            dim=1024
+            #overwrite=False  # Don't overwrite existing data
         )
         logger.debug(f"Milvus connection: {vector_store.uri}")
 
