@@ -30,6 +30,8 @@ def doc_index():
 
         # Check if there's an existing index
         if global_query_engine:
+            logger.info("Index is up-to-date. No action taken.")
+            return "Index is up-to-date."
             # Here, we would need to implement logic to check if documents have changed
             # For simplicity, let's just compare the number of documents
             current_docs_count = len(documents)
