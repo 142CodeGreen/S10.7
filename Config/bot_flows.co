@@ -7,7 +7,6 @@ define flow self check input
 
 define flow user_query
   user ...
-  #print("user_query flow triggered!")
   $answer = execute rag()
   $check_hallucination = True
   bot $answer
