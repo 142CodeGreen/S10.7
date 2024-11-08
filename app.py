@@ -27,91 +27,51 @@ Settings.text_splitter = SentenceSplitter(chunk_size=400, chunk_overlap=20)
 
 kb_dir = "./Config/kb"
 global_query_engine = None
-rails = None
-
-def initialize_guardrails():
-    global rails
-    if global_query_engine:
-        try:
-            config = RailsConfig.from_path("./Config")
-            rails = LLMRails(config)
-            init(rails)  # This calls the init function from actions.py
-            logger.info("Guardrails initialized successfully.")
-        except Exception as e:
-            logger.error(f"Failed to initialize guardrails: {e}")
-            return "Failed to initialize guardrails."
-    else:
-        logger.warning("Attempt to initialize guardrails without query engine.")
-        return "Query engine not available. Please index documents first."
-
-def load_and_initialize(*file_paths):
-    # Step 1: Upload documents
-    load_result = load_documents(*file_paths)
-    
-    # If the documents are loaded successfully, proceed with indexing
-    if load_result == "Documents successfully converted to Markdown and saved.":
-        # Step 2: Indexing
-        index_result = doc_index()
-        
-        # If indexing was successful, initialize guardrails
-        if index_result == "Documents indexed successfully.":
-            # Step 3: Initialize guardrails
-            guardrail_result = initialize_guardrails()
-            return guardrail_result
-        else:
-            return index_result
-    else:
-        return load_result
-
+#rails = None
 
 # create stream_response
 
+# create stream_response
 async def stream_response(query, history):
     if not global_query_engine:
-        yield ("System", "Please load documents first.")
-        return  # Stop iteration here
+        return [("System", "Please load documents first."), *history]
 
-    if not rails:
-        yield ("System", "Guardrails have not been initialized. Please index documents first.")
-        return
-
-    # Yield history if it exists
-    if history:
-        yield history
+    # Initialize guardrails for each query
+    config = RailsConfig.from_path("./Config")
+    rails = LLMRails(config)
+    init(rails)
 
     try:
         user_message = {"role": "user", "content": query}
         # Generate response using guardrails and the RAG system
         result = await rails.generate_async(messages=[user_message])
-        
-        # Process the result
-        response = process_result(result)
-        history.append((query, response))
-        yield history
+
+        if isinstance(result, dict):
+            if "content" in result:
+                history.append((query, result["content"]))
+            else:
+                history.append((query, str(result)))
+        else:
+            if isinstance(result, str):
+                history.append((query, result))
+            elif hasattr(result, '__iter__'):
+                for chunk in result:
+                    if isinstance(chunk, dict) and "content" in chunk:
+                        history.append((query, chunk["content"]))
+                        yield history
+                    else:
+                        history.append((query, chunk))
+                        yield history
+            else:
+                logger.error(f"Unexpected result type: {type(result)}")
+                history.append((query, "Unexpected response format."))
+
+        return history
 
     except Exception as e:
-        logger.error(f"An error occurred while generating response: {e}")
-        history.append((query, "An error occurred while processing your request."))
-        yield history
-
-def load_and_initialize(*file_paths):
-    # Step 1: Upload documents
-    load_result = load_documents(*file_paths)
-    
-    # If the documents are loaded successfully, proceed with indexing
-    if load_result == "Documents successfully converted to Markdown and saved.":
-        # Step 2: Indexing
-        index_result = doc_index()
-        
-        # If indexing was successful, initialize guardrails
-        if index_result == "Documents indexed successfully.":
-            # Step 3: Initialize guardrails
-            guardrail_result = initialize_guardrails()
-            return guardrail_result
-        else:
-            return index_result
-    else:
-        return load_result
+        logger.error(f"Error in stream_response: {str(e)}")
+        history.append(("An error occurred while processing your query.", None))
+        return history
 
 
 # create Gradio UI and launch UI
@@ -129,8 +89,12 @@ def start_gradio():
         clear_chat_btn = gr.Button("Clear Chat History")
         clear_all_btn = gr.Button("Clear All")
 
-        # Connect the button click to the load_and_initialize function
-        load_btn.click(load_and_initialize, inputs=[file_input], outputs=[load_output])
+        # Function to load documents and create index
+        load_btn.click(
+            lambda x: (load_documents(*x), doc_index()),
+            inputs=[file_input],
+            outputs=[load_output, gr.State()]
+        )
 
         # Function to reset documents
         def reset_documents():
