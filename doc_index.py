@@ -5,6 +5,8 @@ from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageCon
 from llama_index.vector_stores.milvus import MilvusVectorStore
 import logging
 from doc_loader import load_documents
+from llama_index.core.node_parser import SentenceSplitter
+Settings.text_splitter = SentenceSplitter(chunk_size=400)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
