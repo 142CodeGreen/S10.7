@@ -125,12 +125,11 @@ def start_gradio():
             outputs=[load_output, gr.Textbox(label="Guardrail Status")]
         )
         
-        
-        load_btn.click(
-            lambda x: [load_documents(*x), doc_index()],
-            inputs=[file_input],
-            outputs=[load_output]
-        )
+        #load_btn.click(
+         #   lambda x: [load_documents(*x), doc_index()],
+         #   inputs=[file_input],
+         #   outputs=[load_output]
+        #)
 
         # Function to reset documents
         #def reset_documents():
