@@ -1,5 +1,7 @@
 #actions.py
 
+# actions.py
+
 from doc_index import doc_index
 
 from nemoguardrails import LLMRails, RailsConfig
@@ -34,9 +36,9 @@ def template(question, context, history):
     Answer in markdown:"""
 
 @action(is_system_action=True)
-async def rag(context: dict): #, embed_model: NVIDIAEmbedding, query_engine)
+async def rag(context: dict):
     """
-    Implements RAG functionality by querying the global_query_engine with the user's question,
+    Implements RAG functionality by querying the index with the user's question,
     considering the conversation history.
 
     Args:
@@ -51,15 +53,18 @@ async def rag(context: dict): #, embed_model: NVIDIAEmbedding, query_engine)
     question = context.get('last_user_message', '')
     history = context.get('history', [])
 
-    if global_query_engine is None:
+    # Get the query engine by calling doc_index()
+    query_engine, _ = doc_index()  
+
+    if query_engine is None:
         return ActionResult(
             return_value="No documents have been indexed. Please load documents first.",
             context_updates={}
         )
 
     try:
-        # Retrieve relevant contexts using the global_query_engine
-        response = await global_query_engine.aquery(question)
+        # Retrieve relevant contexts using the query_engine
+        response = await query_engine.aquery(question)
         
         # Create context from retrieved documents
         doc_context = "\n".join([node.text for node in response.source_nodes])
@@ -88,7 +93,5 @@ async def rag(context: dict): #, embed_model: NVIDIAEmbedding, query_engine)
         )
 
 def init(app: LLMRails):
-    if global_query_engine is not None:
-        app.register_action(rag, name="rag")
-    else:
-        print("Warning: Query engine not initialized. RAG action not registered.")
+    # No need to check global_query_engine
+    app.register_action(rag, name="rag")
