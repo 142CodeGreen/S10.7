@@ -150,12 +150,3 @@ def start_gradio():
 
 if __name__ == "__main__":
     start_gradio()
-  
-# Create Gradio UI and launch UI
-def start_gradio():
-    with gr.Blocks() as demo:
-        gr.Markdown("# RAG Chatbot for PDF Files")
-        
-        file_input = gr.File(label="Select files to upload", file_count="multiple")
-        load_btn = gr.Button("Click to Load Documents")
-        clear_docs_btn = gr.Button("Clear Documents
