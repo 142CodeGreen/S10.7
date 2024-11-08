@@ -29,21 +29,8 @@ def doc_index():
             logger.info("No documents were processed for indexing.")
             return "No documents available to index."
 
-        # Create a Milvus vector store and storage context (using GPU)
-        #vector_store = MilvusVectorStore(
-        #    host="127.0.0.1",
-        #    port=19530,
-        #    dim=1024,
-        #    collection_name="your_collection_name",  # Replace with your desired collection name
-        #    gpu_id=0  # Specify the GPU ID to use
-        #)
-
-        # If you want to use CPU, uncomment the following line and comment out the GPU configuration above
         vector_store = MilvusVectorStore(uri="./milvus_demo.db", dim=1024, overwrite=True)
-
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
-
-        # Create the index from the documents
         index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
 
         # Create the query engine DIRECTLY from the index
