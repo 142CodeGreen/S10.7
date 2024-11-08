@@ -85,6 +85,73 @@ async def stream_response(query, history):
         history.append(("An error occurred while processing your query.", None))
         yield history
 
+# create Gradio UI and launch UI
+
+def start_gradio():
+    with gr.Blocks() as demo:
+        gr.Markdown("# RAG Chatbot for PDF Files")
+        
+        file_input = gr.File(label="Select files to upload", file_count="multiple")
+        load_btn = gr.Button("Click to Load Documents")
+        clear_docs_btn = gr.Button("Clear Documents")
+        load_output = gr.Textbox(label="Load Status")
+        chatbot = gr.Chatbot()
+        msg = gr.Textbox(label="Enter your question")
+        clear_chat_btn = gr.Button("Clear Chat History")
+        clear_all_btn = gr.Button("Clear All")
+
+        def on_load_documents_click(x):
+            # Load documents and index them
+            load_status = load_documents(*x)
+            index_status = doc_index()
+    
+            # Check if the query engine was initialized after indexing
+            check_query_engine_initialized()
+    
+            # Initialize guardrails based on the indexing status
+            if index_status == "Documents indexed successfully.":
+                initialize_guardrails()
+                guardrail_status = "Guardrails initialized successfully."
+            else:
+                guardrail_status = "Failed to initialize guardrails."
+    
+            # Return both statuses
+            return load_status, guardrail_status
+
+        # Connect the function to the UI element
+        load_btn.click(
+            on_load_documents_click,
+            inputs=[file_input],
+            outputs=[load_output, gr.Textbox(label="Guardrail Status")]
+        )
+        
+        
+        load_btn.click(
+            lambda x: [load_documents(*x), doc_index()],
+            inputs=[file_input],
+            outputs=[load_output]
+        )
+
+        # Function to reset documents
+        #def reset_documents():
+        #    global global_query_engine
+        #    global_query_engine = None
+        #    return None, "Documents cleared"
+
+        clear_docs_btn.click(
+            reset_documents, 
+            outputs=[file_input, load_output]
+        )
+
+        msg.submit(stream_response, inputs=[msg, chatbot], outputs=[chatbot])
+        clear_chat_btn.click(lambda: [], outputs=[chatbot])
+        clear_all_btn.click(lambda: ([], None, "Documents and chat cleared"), inputs=[], outputs=[chatbot, file_input, load_output])
+
+    demo.queue().launch(share=True, debug=True)
+
+if __name__ == "__main__":
+    start_gradio()
+  
 # Create Gradio UI and launch UI
 def start_gradio():
     with gr.Blocks() as demo:
