@@ -93,12 +93,12 @@ def start_gradio():
         load_btn.click(
             lambda x: [
                 load_documents(*x),
-                try:
-                    doc_index()
-                    "Indexing completed."
-                except Exception as e:
-                    logger.error(f"Indexing failed: {str(e)}")
-                    "Indexing failed."
+                    try:
+                        doc_index()
+                        "Indexing completed."
+                    except Exception as e:
+                        logger.error(f"Indexing failed: {str(e)}")
+                        "Indexing failed."
             ],
             inputs=[file_input],
             outputs=[load_output, gr.State()]
