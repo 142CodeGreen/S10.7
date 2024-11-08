@@ -6,6 +6,7 @@ from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.core import Settings
 from llama_index.core.node_parser import SentenceSplitter
 import logging
+from doc_loader import load_documents
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
