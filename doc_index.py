@@ -12,14 +12,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 kb_dir = "./Config/kb"
-global_query_engine = None
+#global_query_engine = None
 
 # Set up the text splitter
 Settings.text_splitter = SentenceSplitter(chunk_size=400)
 
 def doc_index():
-    global global_query_engine
-
+    #global global_query_engine
     try:
         logger.debug("Starting document indexing process.")
         documents = SimpleDirectoryReader(kb_dir, required_exts=['.md']).load_data()
@@ -34,10 +33,10 @@ def doc_index():
         index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
 
         # Create the query engine DIRECTLY from the index
-        global_query_engine = index.as_query_engine(similarity_top_k=20, streaming=True) 
+        query_engine = index.as_query_engine(similarity_top_k=20, streaming=True) 
 
         logger.info("Documents indexed successfully.")
-        return "Documents indexed successfully."
+        return query_engine, "Documents indexed successfully
 
     except Exception as e:
         logger.error(f"Error during indexing: {e}")
