@@ -34,7 +34,7 @@ global_query_engine = None
 async def stream_response(query, history):
     if not global_query_engine:
         yield [("System", "Please load documents first.")]
-        yield from history  #
+        yield history
 
     # Initialize guardrails for each query
     config = RailsConfig.from_path("./Config")
@@ -71,7 +71,7 @@ async def stream_response(query, history):
     except Exception as e:
         logger.error(f"Error in stream_response: {str(e)}")
         history.append(("An error occurred while processing your query.", None))
-        return history
+        yield history
 
 
 # create Gradio UI and launch UI
