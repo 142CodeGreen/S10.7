@@ -16,12 +16,6 @@ global_query_engine = None
 def doc_index():
     global global_query_engine
 
-    # First, ensure documents are loaded
-    load_result = load_documents(*os.listdir(kb_dir))  # Assuming all files in kb_dir are PDFs
-    if load_result != "Documents successfully converted to Markdown and saved.":
-        logger.info("Document loading failed or no documents were processed.")
-        return load_result
-
     markdown_files = [os.path.join(kb_dir, f) for f in os.listdir(kb_dir) if f.endswith('.md')]
     
     if not markdown_files:
@@ -36,6 +30,8 @@ def doc_index():
 
         # Check if there's an existing index
         if global_query_engine:
+            # Here, we would need to implement logic to check if documents have changed
+            # For simplicity, let's just compare the number of documents
             current_docs_count = len(documents)
             if current_docs_count == len(global_query_engine._index.index_struct.docstore.docs):
                 logger.info("No new documents to index. Using existing index.")
@@ -53,6 +49,8 @@ def doc_index():
         # If we have an existing index, try to load it, otherwise create a new one
         if global_query_engine:
             index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+            # Here you would typically add or update documents in the index, but for simplicity:
+            # index.insert(documents) would be used if you're updating or adding documents
         else:
             index = VectorStoreIndex.from_documents(
                 documents,
