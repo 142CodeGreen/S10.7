@@ -131,11 +131,11 @@ def start_gradio():
          #   outputs=[load_output]
         #)
 
-        # Function to reset documents
-        #def reset_documents():
-        #    global global_query_engine
-        #    global_query_engine = None
-        #    return None, "Documents cleared"
+         Function to reset documents
+        def reset_documents():
+            global global_query_engine
+            global_query_engine = None
+            return None, "Documents cleared"
 
         clear_docs_btn.click(
             reset_documents, 
