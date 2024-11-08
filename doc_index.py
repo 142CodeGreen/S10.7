@@ -11,13 +11,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 kb_dir = "./Config/kb"
-#global_query_engine = None
+global_query_engine = None
 
 # Set up the text splitter
 Settings.text_splitter = SentenceSplitter(chunk_size=400)
 
 def doc_index(file_paths):
-    index,global global_query_engine
+    global global_query_engine
 
     try:
         logger.debug("Starting document indexing process.")
