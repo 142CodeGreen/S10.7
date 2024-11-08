@@ -34,7 +34,7 @@ def template(question, context, history):
     Answer in markdown:"""
 
 @action(is_system_action=True)
-async def rag(context: dict, embed_model: NVIDIAEmbedding, query_engine):
+async def rag(context: dict): #, embed_model: NVIDIAEmbedding, query_engine)
     """
     Implements RAG functionality by querying the global_query_engine with the user's question,
     considering the conversation history.
@@ -88,10 +88,7 @@ async def rag(context: dict, embed_model: NVIDIAEmbedding, query_engine):
         )
 
 def init(app: LLMRails):
-    app.register_action(
-        rag, 
-        name="rag", 
-        embed_model=Settings.embed_model,
-        query_engine=global_query_engine
-    )
-    
+    if global_query_engine is not None:
+        app.register_action(rag, name="rag")
+    else:
+        print("Warning: Query engine not initialized. RAG action not registered.")
