@@ -16,7 +16,7 @@ global_query_engine = None
 # Set up the text splitter
 Settings.text_splitter = SentenceSplitter(chunk_size=400)
 
-def doc_index(file_paths):
+def doc_index():
     global global_query_engine
 
     try:
