@@ -20,41 +20,40 @@ def doc_index():
     global global_query_engine
 
     try:
-        # Use SimpleDirectoryReader to load documents
+        logger.debug("Starting document indexing process.")
         documents = SimpleDirectoryReader(kb_dir, required_exts=['.md']).load_data()
+        logger.debug(f"Number of documents loaded: {len(documents)}")
         
         if not documents:
             logger.info("No documents were processed for indexing.")
             return "No documents available to index."
 
-        # Check if there's an existing index
         if global_query_engine:
             logger.info("Index is up-to-date. No action taken.")
             return "Index is up-to-date."
 
-        # If there's no query engine or if we want to ensure the index is up-to-date or rebuilt:
         vector_store = MilvusVectorStore(
             uri="milvus_demo.db",
             dim=1024,
             overwrite=False  # Don't overwrite existing data
         )
+        logger.debug(f"Milvus connection: {vector_store.uri}")
 
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-        # Create or update the index
+        logger.debug("Creating VectorStoreIndex...")
         index = VectorStoreIndex.from_documents(
             documents,
             storage_context=storage_context
         )
         
-        # Persist the index
+        logger.debug("Persisting index...")
         index.storage_context.persist(persist_dir=kb_dir)
 
-        # Create the query engine
+        logger.debug("Creating query engine...")
         query_engine = index.as_query_engine(similarity_top_k=20, streaming=True)
         global_query_engine = query_engine  # Update the global variable
 
-        # Log that indexing was successful
         logger.info("Documents indexed successfully.")
         return "Documents indexed successfully."
 
