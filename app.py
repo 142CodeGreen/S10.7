@@ -29,12 +29,12 @@ kb_dir = "./Config/kb"
 global_query_engine = None
 #rails = None
 
-# create stream_response
 
 # create stream_response
 async def stream_response(query, history):
     if not global_query_engine:
-        return [("System", "Please load documents first."), *history]
+        yield [("System", "Please load documents first.")]
+        yield from history  #
 
     # Initialize guardrails for each query
     config = RailsConfig.from_path("./Config")
@@ -66,7 +66,7 @@ async def stream_response(query, history):
                 logger.error(f"Unexpected result type: {type(result)}")
                 history.append((query, "Unexpected response format."))
 
-        return history
+        yield history
 
     except Exception as e:
         logger.error(f"Error in stream_response: {str(e)}")
