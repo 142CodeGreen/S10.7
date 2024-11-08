@@ -131,7 +131,7 @@ def start_gradio():
          #   outputs=[load_output]
         #)
 
-         Function to reset documents
+         #Function to reset documents
         def reset_documents():
             global global_query_engine
             global_query_engine = None
