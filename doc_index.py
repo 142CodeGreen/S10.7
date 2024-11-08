@@ -45,16 +45,20 @@ def doc_index():
         index = VectorStoreIndex.from_documents(
             documents,
             storage_context=storage_context
-        )
-        
+        )        
         logger.debug("Persisting index...")
         index.storage_context.persist(persist_dir=kb_dir)
 
-        logger.debug("Creating query engine...")
-        query_engine = reloaded_index.as_query_engine(similarity_top_k=20, streaming=True)
-        #query_engine = index.as_query_engine(similarity_top_k=20, streaming=True)
-        global_query_engine = query_engine  # Update the global variable
+        try:
+            reloaded_storage_context = StorageContext.from_defaults(persist_dir=kb_dir)
+            reloaded_index = load_index_from_storage(reloaded_storage_context)
+            logger.debug("Index successfully reloaded from storage.")
+        except Exception as e:
+            logger.error(f"Failed to reload index from storage: {e}")
+            return f"Index created but failed to reload: {str(e)}"
 
+        logger.debug("Creating query engine...")
+        global_query_engine = reloaded_index.as_query_engine(similarity_top_k=20, streaming=True)
         logger.info("Documents indexed successfully.")
         return "Documents indexed successfully."
 
