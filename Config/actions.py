@@ -34,7 +34,7 @@ def template(question, context, history):
     Answer in markdown:"""
 
 @action(is_system_action=True)
-async def rag(context: dict, embed_model: NVIDIAEmbedding, query_engine)
+async def rag(context: dict, embed_model: NVIDIAEmbedding, query_engine):
     """
     Implements RAG functionality by querying the global_query_engine with the user's question,
     considering the conversation history.
