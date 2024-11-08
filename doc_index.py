@@ -1,9 +1,10 @@
 # indexer.py
-# indexer.py
+
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext, load_index_from_storage
 from llama_index.vector_stores.milvus import MilvusVectorStore
 import logging
 import os
+import time
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core import Settings
 
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 kb_dir = "./Config/kb"
 global_query_engine = None
-last_index_time =0
+last_index_time = 0
 
 # Set up the text splitter
 Settings.text_splitter = SentenceSplitter(chunk_size=400)
@@ -67,6 +68,13 @@ def doc_index():
         index_file_path = os.path.join(kb_dir, "my_rag_index.json")
         index.save_to_disk(index_file_path)
 
+        # Option 2: Explicitly persist the vector store
+        # index.storage_context.persist(persist_dir=kb_dir)
+        # vector_store.persist(persist_dir=kb_dir)
+
+        # Option 3: Use simple storage
+        # storage_context.persist(persist_dir=kb_dir, storage_type="simple")
+
         try:
             reloaded_storage_context = StorageContext.from_defaults(persist_dir=kb_dir)
 
@@ -79,4 +87,17 @@ def doc_index():
             logger.debug("Index successfully reloaded from storage.")
         except Exception as e:
             logger.exception(f"Failed to reload index from storage: {e}")
-            return f"Index created but failed to reload: {str(e)}"
+            return f"Index created but failed to reload: {str(e)}"  # Correct indentation
+
+        logger.debug("Creating query engine...")
+        global_query_engine = reloaded_index.as_query_engine(similarity_top_k=20, streaming=True)
+
+        # Update last index time after successful indexing
+        last_index_time = current_time  
+
+        logger.info("Documents indexed successfully.")
+        return "Documents indexed successfully."
+
+    except Exception as e:  # Outer `except` block
+        logger.error(f"Error during indexing: {e}")
+        return f"Failed to index documents: {str(e)}"
