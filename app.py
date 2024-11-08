@@ -100,36 +100,36 @@ def start_gradio():
         clear_chat_btn = gr.Button("Clear Chat History")
         clear_all_btn = gr.Button("Clear All")
 
-        def on_load_documents_click(x):
+        #def on_load_documents_click(x):
             # Load documents and index them
-            load_status = load_documents(*x)
-            index_status = doc_index()
+        #    load_status = load_documents(*x)
+        #    index_status = doc_index()
     
             # Check if the query engine was initialized after indexing
-            check_query_engine_initialized()
+        #    check_query_engine_initialized()
     
             # Initialize guardrails based on the indexing status
-            if index_status == "Documents indexed successfully.":
-                initialize_guardrails()
-                guardrail_status = "Guardrails initialized successfully."
-            else:
-                guardrail_status = "Failed to initialize guardrails."
+        #    if index_status == "Documents indexed successfully.":
+        #        initialize_guardrails()
+        #        guardrail_status = "Guardrails initialized successfully."
+        #    else:
+        #        guardrail_status = "Failed to initialize guardrails."
     
             # Return both statuses
-            return load_status, guardrail_status
+        #    return load_status, guardrail_status
 
         # Connect the function to the UI element
-        load_btn.click(
-            on_load_documents_click,
-            inputs=[file_input],
-            outputs=[load_output, gr.Textbox(label="Guardrail Status")]
-        )
-        
         #load_btn.click(
-         #   lambda x: [load_documents(*x), doc_index()],
-         #   inputs=[file_input],
-         #   outputs=[load_output]
+        #    on_load_documents_click,
+        #    inputs=[file_input],
+        #    outputs=[load_output, gr.Textbox(label="Guardrail Status")]
         #)
+        
+        load_btn.click(
+            lambda x: [load_documents(*x), doc_index(), check_query_engine_initialized(), initialize_guardrails()],
+            inputs=[file_input],
+            outputs=[load_output]
+        )
 
          #Function to reset documents
         def reset_documents():
