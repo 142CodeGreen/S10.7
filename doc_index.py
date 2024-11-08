@@ -1,62 +1,63 @@
 # indexer.py
-
-import os
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext
 from llama_index.vector_stores.milvus import MilvusVectorStore
 import logging
-from doc_loader import load_documents
+import os
 from llama_index.core.node_parser import SentenceSplitter
-Settings.text_splitter = SentenceSplitter(chunk_size=400)
+from llama_index.core import Settings
 
-# Configure logging
+# Configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 kb_dir = "./Config/kb"
 global_query_engine = None
 
+# Set up the text splitter
+Settings.text_splitter = SentenceSplitter(chunk_size=400)
+
 def doc_index():
     global global_query_engine
-    markdown_files = [os.path.join(kb_dir, f) for f in os.listdir(kb_dir) if f.endswith('.md')]
 
-    if not markdown_files:
-        print("No Markdown files found in knowledge base directory. Please load documents first.")
-        return "No documents available to index."
+    try:
+        # Use SimpleDirectoryReader to load documents
+        documents = SimpleDirectoryReader(kb_dir, required_exts=['.md']).load_data()
+        
+        if not documents:
+            logger.info("No documents were processed for indexing.")
+            return "No documents available to index."
 
-    if global_query_engine is not None:
-        logger.warning("Attempting to index documents while there's already an index. This should not happen unless it's an intentional reload.")
-        return "An index already exists. Reload documents if you want to update the index."
+        # Check if there's an existing index
+        if global_query_engine:
+            logger.info("Index is up-to-date. No action taken.")
+            return "Index is up-to-date."
 
-    processed_documents = []
-    for md_path in markdown_files:
-        with open(md_path, 'r') as file:
-            content = file.read()
-            nodes = Settings.text_splitter.split_text(content)
-            for node in nodes:
-                processed_documents.append(Node(text=node, metadata={"source": md_path}))
-
-    if processed_documents:
-        # Create Milvus Vector Store with processed documents
+        # If there's no query engine or if we want to ensure the index is up-to-date or rebuilt:
         vector_store = MilvusVectorStore(
             uri="milvus_demo.db",
             dim=1024,
-            overwrite=True
+            overwrite=False  # Don't overwrite existing data
         )
 
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
+
+        # Create or update the index
         index = VectorStoreIndex.from_documents(
-            processed_documents,
+            documents,
             storage_context=storage_context
         )
+        
         # Persist the index
         index.storage_context.persist(persist_dir=kb_dir)
+
+        # Create the query engine
         query_engine = index.as_query_engine(similarity_top_k=20, streaming=True)
-        global_query_engine = query_engine  # Set the global variable
+        global_query_engine = query_engine  # Update the global variable
 
-        # Sample query to confirm the query engine works
-        response = query_engine.query("What is this document about?")
-        print(response)
-
+        # Log that indexing was successful
+        logger.info("Documents indexed successfully.")
         return "Documents indexed successfully."
-    else:
-        return "No documents were processed for indexing."
+
+    except Exception as e:
+        logger.error(f"Error during indexing: {e}")
+        return f"Failed to index documents: {str(e)}"
