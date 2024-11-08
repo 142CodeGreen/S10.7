@@ -40,4 +40,4 @@ def doc_index():
 
     except Exception as e:
         logger.error(f"Error during indexing: {e}")
-        return f"Failed to index documents: {str(e)}"
+        return None, f"Failed to index documents: {str(e)}"  # Return None and error message
