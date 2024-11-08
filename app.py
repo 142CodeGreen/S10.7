@@ -109,7 +109,7 @@ def start_gradio():
 
         msg.submit(stream_response, inputs=[msg, chatbot], outputs=[chatbot])
         clear_chat_btn.click(lambda: [], outputs=[chatbot])
-        clear_all_btn.click(lambda: None, None, chatbot, queue=False)
+        clear_all_btn.click(lambda: ([], None, "Documents and chat cleared"), inputs=[], outputs=[chatbot, file_input, load_output])
 
     demo.queue().launch(share=True, debug=True)
 
