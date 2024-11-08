@@ -1,6 +1,7 @@
 # indexer.py
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext
 from llama_index.vector_stores.milvus import MilvusVectorStore
+from llama_index import load_index_from_storage
 import logging
 import os
 from llama_index.core.node_parser import SentenceSplitter
