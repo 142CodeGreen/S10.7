@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 kb_dir = "./Config/kb"
 
 # Set up the text splitter and embedding model
+Settings.llm = NVIDIA(model="meta/llama-3.1-8b-instruct")
 Settings.text_splitter = SentenceSplitter(chunk_size=400)
 Settings.embed_model = NVIDIAEmbedding(model="NV-Embed-QA", truncate="END")
 
