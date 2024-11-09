@@ -21,9 +21,16 @@ Settings.embed_model = NVIDIAEmbedding(model="NV-Embed-QA", truncate="END")
 def doc_index():
     try:
         logger.debug("Starting document indexing process.")
-        documents = SimpleDirectoryReader(kb_dir, required_exts=['.md']).load_data()
-        logger.debug(f"Number of documents loaded: {len(documents)}")
+        # --- Place the code here ---
+        documents = load_documents(file_paths)  # Get documents from doc_loader
 
+        if not documents or isinstance(documents, str):  # Check for errors
+            logger.error("Error loading documents.")
+            return None, "Failed to load documents"  
+        # ---------------------------
+
+        logger.debug(f"Number of documents loaded: {len(documents)}") 
+        
         if not documents:
             logger.info("No documents were processed for indexing.")
             return None, "No documents available to index."
@@ -47,7 +54,7 @@ def doc_index():
         print(f"Response to test query: {response}") 
         # -----------------------------------
 
-        return query_engine, "Documents indexed successfully"
+        return "Documents indexed successfully", query_engine
 
     except Exception as e:
         logger.error(f"Error during indexing: {e}")
