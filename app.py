@@ -27,6 +27,18 @@ kb_dir = "./Config/kb"
 
 rails = None  # Global variable for rails, if needed
 
+def process_and_index(files):
+    # 1. Load and convert documents
+    load_result = load_documents(*files)  # Get the string message
+
+    # 2. Index documents and create query engine
+    if "successfully" in load_result:
+        index, query_engine = doc_index(files)  # Pass 'files' to doc_index
+        # ... (rest of your code to integrate with Nemo Guardrails) ...
+        return load_result, "Index created and query engine ready"  
+    else:
+        return load_result, "Error loading documents"
+
 def initialize_guardrails(query_engine):
     if query_engine:
         config = RailsConfig.from_path("./Config")
