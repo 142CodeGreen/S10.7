@@ -1,6 +1,7 @@
 # indexer.py
 
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext, Settings
+from llama_index.llms.nvidia import NVIDIA
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.vector_stores.milvus import MilvusVectorStore
