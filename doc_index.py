@@ -40,6 +40,13 @@ def doc_index():
         )
 
         logger.info("Documents indexed successfully.")
+
+        # --- Perform the test query here ---
+        test_query = "What is this document about?"  # Replace with your test query
+        response = query_engine.query(test_query)
+        print(f"Response to test query: {response}") 
+        # -----------------------------------
+
         return query_engine, "Documents indexed successfully"
 
     except Exception as e:
