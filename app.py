@@ -103,7 +103,7 @@ def start_gradio():
         clear_all_btn = gr.Button("Clear All")
 
         load_btn.click(
-            lambda x: [load_documents(*x), *doc_index(file_paths)],
+            lambda x: [load_documents(*x), *doc_index(x)],
             inputs=[file_input],
             outputs=[load_output, gr.Textbox(label="Index Status")]
         ).then(
