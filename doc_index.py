@@ -5,6 +5,7 @@ from llama_index.llms.nvidia import NVIDIA
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.nvidia import NVIDIAEmbedding
 from llama_index.vector_stores.milvus import MilvusVectorStore
+from doc_loader import load_documents
 import logging
 
 # Configuration for logging
