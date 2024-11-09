@@ -55,8 +55,8 @@ def doc_index(file_paths):
         print(f"Response to test query: {response}") 
         # -----------------------------------
 
-        return "Documents indexed successfully", query_engine
+        return "Documents indexed successfully" # query_engine
 
     except Exception as e:
         logger.error(f"Error during indexing: {e}")
-        return None, f"Failed to index documents: {str(e)}"
+        return f"Failed to index documents: {str(e)}"
