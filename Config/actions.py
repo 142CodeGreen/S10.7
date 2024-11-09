@@ -54,7 +54,7 @@ async def rag(context: dict):
     history = context.get('history', [])
 
     # Get the query engine by calling doc_index()
-    query_engine, _ = doc_index()  
+    query_engine, _ = await doc_index()  
 
     if query_engine is None:
         return ActionResult(
