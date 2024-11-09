@@ -25,37 +25,29 @@ Settings.text_splitter = SentenceSplitter(chunk_size=400, chunk_overlap=20)
 
 kb_dir = "./Config/kb"
 
-# Function to check and log the status of global_query_engine after indexing
-def check_query_engine_initialized():
-    if global_query_engine:
-        logger.info("Query engine initialized successfully")
-    else:
-        logger.warning("Query engine not initialized after indexing.")
+rails = None  # Global variable for rails, if needed
 
-# Function to initialize guardrails only when global_query_engine is not None
-def initialize_guardrails():
-    global global_query_engine, rails
-    if global_query_engine:
+def initialize_guardrails(query_engine):
+    if query_engine:
         config = RailsConfig.from_path("./Config")
+        global rails  # Use global to update the rails variable
         rails = LLMRails(config)
         init(rails)
+        return "Guardrails initialized successfully.", rails
     else:
-        logger.error("Guardrails not initialized: Query engine is None.")
+        error_message = "Guardrails not initialized: Query engine is None."
+        logger.error(error_message)
+        return error_message, None
 
-# Stream response function
 async def stream_response(query, history):
-    if not global_query_engine:
-        yield [("System", "Please load documents first.")]
-        return
-
-    if not globals().get('rails'):
+    global rails  # Use global to access the rails variable
+    if not rails:
         logger.error("Guardrails not initialized.")
         yield [("System", "Guardrails not initialized. Please load documents first.")]
         return
 
     try:
         user_message = {"role": "user", "content": query}
-        # Generate response using guardrails and the RAG system
         result = await rails.generate_async(messages=[user_message])
 
         if isinstance(result, dict):
@@ -85,8 +77,6 @@ async def stream_response(query, history):
         history.append(("An error occurred while processing your query.", None))
         yield history
 
-# create Gradio UI and launch UI
-
 def start_gradio():
     with gr.Blocks() as demo:
         gr.Markdown("# RAG Chatbot for PDF Files")
@@ -100,45 +90,21 @@ def start_gradio():
         clear_chat_btn = gr.Button("Clear Chat History")
         clear_all_btn = gr.Button("Clear All")
 
-        #def on_load_documents_click(x):
-            # Load documents and index them
-        #    load_status = load_documents(*x)
-        #    index_status = doc_index()
-    
-            # Check if the query engine was initialized after indexing
-        #    check_query_engine_initialized()
-    
-            # Initialize guardrails based on the indexing status
-        #    if index_status == "Documents indexed successfully.":
-        #        initialize_guardrails()
-        #        guardrail_status = "Guardrails initialized successfully."
-        #    else:
-        #        guardrail_status = "Failed to initialize guardrails."
-    
-            # Return both statuses
-        #    return load_status, guardrail_status
-
-        # Connect the function to the UI element
-        #load_btn.click(
-        #    on_load_documents_click,
-        #    inputs=[file_input],
-        #    outputs=[load_output, gr.Textbox(label="Guardrail Status")]
-        #)
-        
         load_btn.click(
-            lambda x: [load_documents(*x), doc_index(), check_query_engine_initialized(), initialize_guardrails()],
+            lambda x: [load_documents(*x), *doc_index()],
             inputs=[file_input],
-            outputs=[load_output]
+            outputs=[load_output, gr.Textbox(label="Index Status")]
+        ).then(
+            initialize_guardrails,
+            inputs=[gr.Textbox()],  # Assumes the query_engine is passed here
+            outputs=[gr.Textbox(label="Guardrail Status")]
         )
 
-         #Function to reset documents
-        def reset_documents():
-            global global_query_engine
-            global_query_engine = None
-            return None, "Documents cleared"
+        # Function to clear documents is no longer needed; use the small "x" sign at the file input
 
         clear_docs_btn.click(
-            reset_documents, 
+            lambda: ([], None, "Documents cleared"),
+            inputs=[], 
             outputs=[file_input, load_output]
         )
 
