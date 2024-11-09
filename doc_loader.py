@@ -57,4 +57,4 @@ def load_documents(*f_paths):
         return "No documents were processed for conversion."
     else:
         logger.info(f"Documents successfully converted to Markdown and saved.")
-        return "Documents successfully converted to Markdown and saved."
+        return documents  # Return the list of documents
