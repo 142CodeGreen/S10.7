@@ -36,7 +36,7 @@ def doc_index():
         query_engine = index.as_query_engine(similarity_top_k=20, streaming=True) 
 
         logger.info("Documents indexed successfully.")
-        return query_engine, "Documents indexed successfully
+        return query_engine, "Documents indexed successfully"
 
     except Exception as e:
         logger.error(f"Error during indexing: {e}")
