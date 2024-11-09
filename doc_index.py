@@ -19,7 +19,7 @@ Settings.llm = NVIDIA(model="meta/llama-3.1-8b-instruct")
 Settings.text_splitter = SentenceSplitter(chunk_size=400)
 Settings.embed_model = NVIDIAEmbedding(model="NV-Embed-QA", truncate="END")
 
-def doc_index():
+def doc_index(file_paths):
     try:
         logger.debug("Starting document indexing process.")
         # --- Place the code here ---
